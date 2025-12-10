@@ -1,0 +1,90 @@
+# ============================================================================
+# .gitignore for Minecraft OpenGL Project
+# 
+# This file ensures build artifacts and temporary files are ignored,
+# while keeping all source files, project files, textures, and dependencies
+# needed to build and run the project.
+# ============================================================================
+
+# Visual Studio files and user-specific settings
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.opensdf
+*.sdf
+*.VC.db
+*.opendb
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+*.VC.VC.opendb
+*.ipch
+*.pch
+*.idb
+*.lastbuildstate
+*.recipe
+*.FileListAbsolute.txt
+
+# Compiled files
+*.exe
+*.dll
+*.obj
+*.pdb
+*.ilk
+*.log
+*.tlog
+*.Build.CppClean.log
+
+# CMake build files (keep source, ignore build output)
+# Note: glfw-3.4/build/ is kept for convenience (~21 MB) so users don't need CMake
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/cmake_uninstall.cmake
+**/CMakeDoxyfile.in
+**/CMakeDoxygenDefaults.cmake
+# glfw-3.4/build/ - KEPT (commented out to allow it in repo)
+# glfw-3.4/*.vcxproj - These are in build/ folder, so allowed
+# glfw-3.4/*.vcxproj.filters - These are in build/ folder, so allowed
+# glfw-3.4/*.sln - This is in build/ folder, so allowed
+
+# Keep GLFW source and headers
+!glfw-3.4/include/
+!glfw-3.4/src/
+!glfw-3.4/CMakeLists.txt
+!glfw-3.4/LICENSE.md
+!glfw-3.4/README.md
+!glfw-3.4/CMake/
+!glfw-3.4/build/
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+
