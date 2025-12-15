@@ -12,7 +12,9 @@ public:
 	Block getBlock(int x, int y, int z) const;
 	void setBlock(int x, int y, int z, BlockType type);
 
-	void generateFlatPlane(int sizeX, int sizeZ);
+	void generateMap(int sizeX, int sizeZ);
+
+	std::unordered_map<std::string, Chunk>& getChunks();
 
 private:
 	std::unordered_map<std::string, Chunk> chunks;

@@ -3,6 +3,7 @@
 #include "Shader.h" // Include your shader class
 #include <iostream>
 #include "World.h"
+#include "Chunk.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -180,7 +181,7 @@ int main(){
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-    unsigned char *data = stbi_load("C:/Users/mudzo/Desktop/Coding/LearningOpenGL/Learning/textures/container.jpg", &width, &height, &nrChannels, 0); 
+    unsigned char *data = stbi_load("C:/Users/mudzo/Desktop/Coding/MinecraftOpenGL/Minecraft OpenGL/textures/container.jpg", &width, &height, &nrChannels, 0); 
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -204,7 +205,7 @@ int main(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
     stbi_set_flip_vertically_on_load(true);
-    data = stbi_load("C:/Users/mudzo/Desktop/Coding/LearningOpenGL/Learning/textures/awesomeface.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("C:/Users/mudzo/Desktop/Coding/MinecraftOpenGL/Minecraft OpenGL/textures/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
@@ -238,7 +239,7 @@ int main(){
 
     // After shader setup, before render loop:
     World world;
-    world.generateFlatPlane(16, 16);
+    world.generateMap(1, 1);
 
 
 //************************************************************************************************************************************
@@ -279,32 +280,62 @@ int main(){
         projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        glm::vec3 cubePositions[] = {
-            glm::vec3(0.0f,  0.0f,  0.0f),
-            glm::vec3(2.0f,  5.0f, -15.0f),
-            glm::vec3(-1.5f, -2.2f, -2.5f),
-            glm::vec3(-3.8f, -2.0f, -12.3f),
-            glm::vec3(2.4f, -0.4f, -3.5f),
-            glm::vec3(-1.7f,  3.0f, -7.5f),
-            glm::vec3(1.3f, -2.0f, -2.5f),
-            glm::vec3(1.5f,  2.0f, -2.5f),
-            glm::vec3(1.5f,  0.2f, -1.5f),
-            glm::vec3(-1.3f,  1.0f, -1.5f)
-        };
+        //glm::vec3 cubePositions[] = {
+        //    glm::vec3(0.0f,  0.0f,  0.0f),
+        //    glm::vec3(2.0f,  5.0f, -15.0f),
+        //    glm::vec3(-1.5f, -2.2f, -2.5f),
+        //    glm::vec3(-3.8f, -2.0f, -12.3f),
+        //    glm::vec3(2.4f, -0.4f, -3.5f),
+        //    glm::vec3(-1.7f,  3.0f, -7.5f),
+        //    glm::vec3(1.3f, -2.0f, -2.5f),
+        //    glm::vec3(1.5f,  2.0f, -2.5f),
+        //    glm::vec3(1.5f,  0.2f, -1.5f),
+        //    glm::vec3(-1.3f,  1.0f, -1.5f)
+        //};
 
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f)*10, glm::vec3(0.5f, 1.0f, 0.0f));
+        //for (unsigned int i = 0; i < 10; i++)
+        //{
+        //    glm::mat4 model = glm::mat4(1.0f);
+        //    model = glm::translate(model, cubePositions[i]);
+        //    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f)*10, glm::vec3(0.5f, 1.0f, 0.0f));
 
-            float angle = 20.0f * i;
+        //    float angle = 20.0f * i;
 
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //    model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        //    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        //}
+
+        std::unordered_map<std::string, Chunk>&  chunks = world.getChunks();
+
+        for (auto& chunk : chunks) {
+            glm::ivec3 chunkPos = chunk.second.getChunkPosition();
+
+            for (int x = 0; x < Chunk::CHUNK_SIZE; x++) {
+                for (int y = 0; y < Chunk::CHUNK_SIZE; y++) {
+                    for (int z = 0; z < Chunk::CHUNK_SIZE; z++) {
+                        Block block = chunk.second.getBlock(x, y, z);
+                        if (block.isActive()) {
+                            float worldX = chunkPos.x * Chunk::CHUNK_SIZE + x;
+                            float worldY = chunkPos.y * Chunk::CHUNK_SIZE + y;
+                            float worldZ = chunkPos.z * Chunk::CHUNK_SIZE + z;
+
+                            glm::mat4 model = glm::mat4(1.0f);
+                            model = glm::translate(model, glm::vec3(worldX, worldY, worldZ));
+                            
+                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+                            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+                        }
+                    }
+                }
+            }
+            
+           
         }
+
 
         
 

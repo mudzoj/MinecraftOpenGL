@@ -1,4 +1,5 @@
 #include "World.h"
+#include "Block.h"
 #include <sstream>
 
 World::World() {
@@ -26,15 +27,25 @@ void World::setBlock(int x, int y, int z, BlockType type) {
     chunk.setBlock(localPos.x, localPos.y, localPos.z, type);
 }
 
-void World::generateFlatPlane(int sizeX, int sizeZ) {
-    // Generate a simple 16x16 grass plane at Y=0
-    // This will create 1 chunk (if sizeX=16, sizeZ=16)
-
+void World::generateMap(int sizeX, int sizeZ) {
     for (int x = 0; x < sizeX; x++) {
         for (int z = 0; z < sizeZ; z++) {
-            setBlock(x, 0, z, BlockType::GRASS);
+            Chunk& chunk = getOrCreateChunk(glm::ivec3(x, 0, z));
+
+            for (int blockX = 0; blockX < chunk.CHUNK_SIZE; blockX++) {
+                for (int blockY = 0; blockY < chunk.CHUNK_SIZE; blockY++) {
+                    for (int blockZ = 0; blockZ < chunk.CHUNK_SIZE; blockZ++) {
+                        chunk.setBlock(blockX, blockY, blockZ, BlockType::GRASS);
+                    }
+                }
+            }
         }
     }
+    
+}
+
+std::unordered_map<std::string, Chunk>& World::getChunks() {
+    return chunks;
 }
 
 glm::ivec3 World::worldToChunkCoord(int x, int y, int z) const {
@@ -43,7 +54,7 @@ glm::ivec3 World::worldToChunkCoord(int x, int y, int z) const {
     int chunkY = (y < 0) ? ((y + 1) / Chunk::CHUNK_SIZE - 1) : (y / Chunk::CHUNK_SIZE);
     int chunkZ = (z < 0) ? ((z + 1) / Chunk::CHUNK_SIZE - 1) : (z / Chunk::CHUNK_SIZE);
         
-    return glm::ivec3();
+    return glm::ivec3(chunkX,chunkY,chunkZ);
 }
 
 glm::ivec3 World::worldToLocalCoord(int x, int y, int z) const {    
@@ -70,6 +81,7 @@ Chunk& World::getOrCreateChunk(glm::ivec3 chunkPos) {
     if (it == chunks.end()) {
         auto result = chunks.emplace(key, Chunk(chunkPos));
         it = result.first;
+        
     }
 
      return it->second;
